@@ -182,3 +182,156 @@ ls -lb displays filenames with special characters escaped, helping you inspect t
 Error: Permission denied
 The account may not have permission to read the file or access the directory. Check the permissions and ownership displayed by ls -l.
 Do not assume that every permission error should be fixed by changing permissions; in a security challenge, the intended task is to use the access provided.
+
+# OverTheWire Bandit — Levels 4 to 7
+
+## Level 4 → Level 5: Finding Human-Readable Data
+
+### Objective
+Find the human-readable file among multiple files in the `inhere` directory.
+
+### Commands Used
+```bash
+cd inhere
+ls -la
+file ./*
+```
+
+After identifying the file reported as human-readable text, read it using its exact filename. For example, if the output identifies `-file07`:
+
+```bash
+cat ./-file07
+```
+
+### Concepts Learned
+- `file` identifies the type of data stored in a file.
+- `./*` matches directory entries in the current directory, including filenames beginning with a hyphen.
+- `cat` displays the contents of a file.
+- A filename beginning with `-` can be accessed safely using an explicit path such as `./-file07`.
+
+### Key Takeaway
+When many files look similar, use `file` to identify the correct file instead of opening them one by one.
+
+---
+
+## Level 5 → Level 6: Finding a File by Properties
+
+### Objective
+Find the password file somewhere on the server. The file has these properties:
+- Human-readable
+- 1033 bytes in size
+- Not executable
+
+### Commands Used
+```bash
+cd inhere
+ls -la
+find . -type f -size 1033c
+```
+
+To search specifically for a non-executable regular file of the required size:
+
+```bash
+find . -type f -size 1033c ! -executable
+```
+
+Inspect the candidate file with:
+
+```bash
+file ./candidate
+cat ./candidate
+```
+
+Replace `./candidate` with the actual path returned by `find`.
+
+### Concepts Learned
+- `find` searches for files and directories matching specified conditions.
+- `-type f` selects regular files.
+- `-size 1033c` searches for files exactly 1033 bytes long; `c` means bytes.
+- `! -executable` excludes files that are executable by the current user.
+- Multiple conditions can be combined to narrow a search.
+
+### Key Takeaway
+Use file properties such as size, type and permissions to narrow down search results efficiently.
+
+---
+
+## Level 6 → Level 7: Searching Across the Server
+
+### Objective
+Find the password file somewhere on the server with these properties:
+- Owned by user `bandit7`
+- Owned by group `bandit6`
+- Exactly 33 bytes in size
+
+### Commands Used
+```bash
+find / -type f -user bandit7 -group bandit6 -size 33c 2>/dev/null
+```
+
+Inspect the resulting path:
+
+```bash
+file /path/to/candidate
+cat /path/to/candidate
+```
+
+Replace `/path/to/candidate` with the exact path returned by `find`.
+
+### Concepts Learned
+- `find /` searches from the root directory.
+- `-user bandit7` matches files owned by the specified user.
+- `-group bandit6` matches files owned by the specified group.
+- `-size 33c` matches files exactly 33 bytes long.
+- `2>/dev/null` redirects error messages to `/dev/null`, hiding permission-denied messages and other standard error output.
+
+### Key Takeaway
+Linux file ownership and permissions help determine which files match a search. Combining several conditions makes large filesystem searches more manageable.
+
+---
+
+## Level 7 → Level 8: Searching for a Specific String
+
+### Objective
+Find the password in the file `/data.txt`. The password is on the same line as the word `millionth`.
+
+### Commands Used
+```bash
+ls
+grep "millionth" data.txt
+```
+
+An alternative is:
+
+```bash
+grep -n "millionth" data.txt
+```
+
+The `-n` option displays the matching line number.
+
+### Concepts Learned
+- `grep` searches text for a matching pattern.
+- Quotation marks make the search term explicit.
+- `-n` displays line numbers alongside matching lines.
+- Searching for a known keyword is often faster than reading a large file manually.
+
+### Key Takeaway
+Use `grep` when you know a word or pattern that appears near the information you need.
+
+---
+
+## Commands Reference
+
+| Command | Purpose |
+|---|---|
+| `file` | Identify file types |
+| `find` | Search for files and directories |
+| `-type f` | Match regular files |
+| `-size 1033c` | Match files exactly 1033 bytes long |
+| `-user` | Filter by file owner |
+| `-group` | Filter by group ownership |
+| `! -executable` | Exclude files executable by the current user |
+| `2>/dev/null` | Hide standard error output |
+| `grep` | Search text for a pattern |
+| `grep -n` | Search text and show matching line numbers |
+
