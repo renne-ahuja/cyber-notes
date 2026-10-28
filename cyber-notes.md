@@ -334,4 +334,27 @@ Use `grep` when you know a word or pattern that appears near the information you
 | `2>/dev/null` | Hide standard error output |
 | `grep` | Search text for a pattern |
 | `grep -n` | Search text and show matching line numbers |
+## Level 10 → Level 11: Decoding Base64 Data
 
+**Objective:** Decode the contents of `data.txt` to reveal the password.
+
+### Command
+
+```bash
+base64 -d data.txt
+```
+
+### Concepts Learned
+
+- Base64 is an encoding scheme that represents binary data using printable characters.
+- `base64 -d` decodes Base64-encoded input.
+- Encoded data is not necessarily encrypted; Base64 does not provide confidentiality.
+- Linux command-line utilities can decode data directly from files.
+
+### Key Takeaway
+
+Identify the data format before choosing a tool. Use `base64 -d` when the content is Base64-encoded.
+
+### Progress
+
+- [ ] Level 10 → Level 11 — Decode the Base64 data
